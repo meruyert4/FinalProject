@@ -4,6 +4,7 @@ import path from 'path';
 import blogRouter from './blogplatform/app.js';
 import bmiRouter from './bmi/app.js';
 import loginRouter from './login/app.js';
+import mailRouter from './nodemailer/app.js';
 import session from 'express-session';
 
 const app = express();
@@ -21,7 +22,8 @@ app.set('view engine', 'ejs');
 app.set('views', [
     path.join(process.cwd(), 'bmi', 'views'),
     path.join(process.cwd(), 'login', 'views'),
-    path.join(process.cwd(), 'blogplatform', 'views')
+    path.join(process.cwd(), 'blogplatform', 'views'),
+    path.join(process.cwd(), 'nodemailer', 'views')
 ]);
 
 
@@ -43,6 +45,7 @@ mongoose.connect(MONGO_URI, {
 app.use('/blog', blogRouter);
 app.use('/bmi', bmiRouter);
 app.use('/login', loginRouter);
+app.use('/mail', mailRouter);
 
 
 // Serve Home Page
@@ -50,7 +53,6 @@ app.get('/', (req, res) => {
     res.redirect('/blog');
 });
 
-// Start Server
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });

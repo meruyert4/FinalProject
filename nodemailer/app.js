@@ -1,15 +1,16 @@
 import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+
 
 dotenv.config();
+const router = express.Router();
+router.use(bodyParser.json());
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('public')); 
+router.get('/', (req, res) => {
+    res.render('nodeHome', { error: null });
+});
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -19,7 +20,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-app.post('/send-email', async (req, res) => {
+router.post('/send-email', async (req, res) => {
     const { to, subject, message } = req.body;
 
     try {
@@ -30,13 +31,11 @@ app.post('/send-email', async (req, res) => {
             text: message
         });
 
-        res.json({ message: 'Email sent successfully!', response: info.response });
+        res.json({ message: '✅ Email sent successfully!', response: info.response });
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).json({ message: 'Failed to send email.' });
+        console.error('❌ Error sending email:', error);
+        res.status(500).json({ message: '❌ Failed to send email.' });
     }
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
-});
+export default router;

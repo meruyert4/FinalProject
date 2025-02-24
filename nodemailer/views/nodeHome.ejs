@@ -43,7 +43,7 @@
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
 
-            const response = await fetch('/send-email', {
+            const response = await fetch('/mail/send-email', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ to, subject, message })
