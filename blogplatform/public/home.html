@@ -51,14 +51,10 @@
             color: white;
         }
 
-        .update-btn {
-            background-color: #007bff;
-            color: white;
-        }
-
         .delete-btn {
             background-color: #dc3545;
             color: white;
+            margin-left: 10px;
         }
 
         button:hover {
@@ -67,7 +63,7 @@
 
         .post-card {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 15px;
             margin-bottom: 10px;
             border-radius: 5px;
             background: #fff;
@@ -80,7 +76,7 @@
 
     <div class="container-wrapper">
         <div class="container">
-            <h2>Create Blog</h2>
+            <h2>Create Post</h2>
             <form id="postForm">
                 <input type="hidden" id="postId">
                 <input type="text" id="title" placeholder="Title" required>
@@ -97,71 +93,51 @@
     </div>
 
     <script>
-        async function fetchPosts() {
-            const response = await fetch('/blogs');
-            const data = await response.json();
-            const postsContainer = document.getElementById('posts');
-            postsContainer.innerHTML = '';
+        document.addEventListener('DOMContentLoaded', fetchPosts);
 
-            data.forEach(post => {
-                const div = document.createElement('div');
-                div.classList.add('post-card');
-                div.innerHTML = `
+        const form = document.getElementById('postForm');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const content = document.getElementById('body').value;
+
+            const response = await fetch('/blog/blogs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, author, content })
+            });
+
+            if (response.ok) {
+                form.reset();
+                fetchPosts();
+            }
+        });
+
+        async function fetchPosts() {
+            const response = await fetch('/blog/blogs');
+            const posts = await response.json();
+
+            const postContainer = document.getElementById('posts');
+            postContainer.innerHTML = '';
+
+            posts.forEach(post => {
+                const postCard = document.createElement('div');
+                postCard.classList.add('post-card');
+                postCard.innerHTML = `
                     <h3>${post.title}</h3>
-                    <p><strong>Author:</strong> ${post.author}</p>
-                    <p>${post.body}</p>
-                    <button class="update-btn" onclick="editPost('${post._id}')">Edit</button>
+                    <p><strong>Author:</strong> ${post.author || 'Unknown'}</p>
+                    <p>${post.content}</p>
                     <button class="delete-btn" onclick="deletePost('${post._id}')">Delete</button>
                 `;
-                postsContainer.appendChild(div);
+                postContainer.appendChild(postCard);
             });
         }
 
-        document.getElementById('postForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const postId = document.getElementById('postId').value;
-            const title = document.getElementById('title').value;
-            const author = document.getElementById('author').value;
-            const body = document.getElementById('body').value;
-
-            if (postId) {
-                await fetch(`/blogs/${postId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, author, body })
-                });
-                document.getElementById('submitBtn').innerText = 'Create Post';
-            } else {
-                await fetch('/blogs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, author, body })
-                });
-            }
-
-            fetchPosts();
-            this.reset();
-            document.getElementById('postId').value = '';
-        });
-
-        async function editPost(id) {
-            const response = await fetch(`/blogs/${id}`);
-            const post = await response.json();
-
-            document.getElementById('postId').value = post._id;
-            document.getElementById('title').value = post.title;
-            document.getElementById('author').value = post.author;
-            document.getElementById('body').value = post.body;
-            document.getElementById('submitBtn').innerText = 'Update Post';
-        }
-
         async function deletePost(id) {
-            await fetch(`/blogs/${id}`, { method: 'DELETE' });
+            await fetch(`/blog/blogs/${id}`, { method: 'DELETE' });
             fetchPosts();
         }
-
-        fetchPosts();
     </script>
 
 </body>
