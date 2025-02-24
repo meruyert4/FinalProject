@@ -5,6 +5,7 @@ import blogRouter from './blogplatform/app.js';
 import bmiRouter from './bmi/app.js';
 import loginRouter from './login/app.js';
 import mailRouter from './nodemailer/app.js';
+import qrRouter from './qr/app.js';
 import session from 'express-session';
 
 const app = express();
@@ -17,15 +18,14 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 app.use('/bmi/public', express.static(path.join(process.cwd(), 'bmi', 'public')));
 app.use('/login/public', express.static(path.join(process.cwd(), 'login', 'public')));
 
-
 app.set('view engine', 'ejs');
 app.set('views', [
     path.join(process.cwd(), 'bmi', 'views'),
     path.join(process.cwd(), 'login', 'views'),
     path.join(process.cwd(), 'blogplatform', 'views'),
-    path.join(process.cwd(), 'nodemailer', 'views')
+    path.join(process.cwd(), 'nodemailer', 'views'),
+    path.join(process.cwd(), 'qr', 'views')
 ]);
-
 
 app.use(session({
     secret: 'kjendjfhcbjhwbLBWEFBuwehnij;nEWJNIJNF',
@@ -41,12 +41,15 @@ mongoose.connect(MONGO_URI, {
 }).then(() => console.log('✅ Connected to MongoDB'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
+// Serve static files for QR codes
+app.use('/qr/public', express.static(path.join(process.cwd(), 'qr', 'public')));
+
 // Mount Routes
 app.use('/blog', blogRouter);
 app.use('/bmi', bmiRouter);
 app.use('/login', loginRouter);
 app.use('/mail', mailRouter);
-
+app.use('/qr', qrRouter);
 
 // Serve Home Page
 app.get('/', (req, res) => {
@@ -54,5 +57,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`✅ Server running on http://localhost:${PORT}`);
 });

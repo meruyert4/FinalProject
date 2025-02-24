@@ -11,10 +11,16 @@
 </head>
 <body>
     <h1>QR Code Generator</h1>
-    <form action="/generate" method="POST">
+    <form action="/qr/generate" method="POST">
         <input type="url" name="url" placeholder="Enter URL" required>
         <br>
-        <button type="submit">back</button>
+        <button type="submit">Generate</button>
     </form>
+    <% if (qrPath) { %>
+        <h2>Your QR Code:</h2>
+        <img src="<%= qrPath %>" alt="Generated QR Code">
+        <br>
+        <a href="/">Generate Another QR Code</a>
+    <% } %>
 </body>
 </html>
