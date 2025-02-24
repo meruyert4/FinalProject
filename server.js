@@ -11,12 +11,12 @@ import session from 'express-session';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), 'public')));
 app.use('/bmi/public', express.static(path.join(process.cwd(), 'bmi', 'public')));
 app.use('/login/public', express.static(path.join(process.cwd(), 'login', 'public')));
+
 
 app.set('view engine', 'ejs');
 app.set('views', [
@@ -33,7 +33,7 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// MongoDB Connection
+//db connection
 const MONGO_URI = 'mongodb://localhost:27017/test';
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
@@ -41,21 +41,19 @@ mongoose.connect(MONGO_URI, {
 }).then(() => console.log('✅ Connected to MongoDB'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-// Serve static files for QR codes
 app.use('/qr/public', express.static(path.join(process.cwd(), 'qr', 'public')));
 
-// Mount Routes
+// routes
 app.use('/blog', blogRouter);
 app.use('/bmi', bmiRouter);
 app.use('/login', loginRouter);
 app.use('/mail', mailRouter);
 app.use('/qr', qrRouter);
 
-// Serve Home Page
 app.get('/', (req, res) => {
     res.redirect('/blog');
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
