@@ -1,74 +1,66 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import path from 'path';
 import bcrypt from 'bcryptjs';
-import session from 'express-session';
-import User from './models/user.js';  // Ensure this file exists
+import User from './models/user.js';
 
 const router = express.Router();
 
-// Middleware for parsing request body
-router.use(express.urlencoded({ extended: true }));
-router.use(express.json());
+// Serve Login Page
+router.get('/', (req, res) => {
+    res.render('home', { error: null });
+});
 
-router.use(session({
-    secret: '4Imp3xlavgXmbWCIXl9dCEomHW4LyGSBCXfuOrF',
-    resave: false,
-    saveUninitialized: true,
-}));
-
-// Connect to MongoDB (Ensure MongoDB is running)
-mongoose.connect('mongodb://localhost:27017/test', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
-
-// **REGISTER ROUTE**
+// Register User
 router.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
-    if (!username || !password) return res.status(400).json({ error: 'Username and Password are required' });
-    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    if (!username || !password) return res.render('home', { error: 'All fields are required!' });
+    if (password.length < 8) return res.render('home', { error: 'Password must be at least 8 characters!' });
 
     try {
         const existingUser = await User.findOne({ username });
-        if (existingUser) return res.status(400).json({ error: 'Username already exists' });
+        if (existingUser) return res.render('home', { error: 'Username already exists!' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword });
 
         await newUser.save();
-        res.status(201).json({ message: 'User registered successfully' });
+        res.redirect('/login'); // Redirect back to login page
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Error registering user' });
+        res.render('home', { error: 'Error registering user!' });
     }
 });
 
-// **LOGIN ROUTE**
+// Login User
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    if (!username || !password) return res.status(400).json({ error: 'Username and Password are required' });
+    if (!username || !password) return res.render('home', { error: 'All fields are required!' });
 
     try {
         const user = await User.findOne({ username });
-        if (!user) return res.status(400).json({ error: 'User not found' });
+        if (!user) return res.render('home', { error: 'User not found!' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+        if (!isMatch) return res.render('home', { error: 'Invalid credentials!' });
 
         req.session.user = user;
-        res.status(200).json({ message: 'Login successful', user: { username: user.username } });
+        res.redirect('/login/dashboard');
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Error logging in' });
+        res.render('home', { error: 'Error logging in!' });
     }
 });
 
-// **LOGOUT ROUTE**
+router.get('/dashboard', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    res.render('dashboard', { user: req.session.user });
+});
+
+// Logout
 router.post('/logout', (req, res) => {
-    req.session.destroy(() => res.json({ message: 'Logged out successfully' }));
+    req.session.destroy(() => res.redirect('/login'));
 });
 
 export default router;
