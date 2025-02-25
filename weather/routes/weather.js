@@ -1,10 +1,21 @@
 import express from 'express';
 import axios from 'axios';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config();
 
 const router = express.Router();
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
+const MAP_API_KEY = process.env.MAP_API_KEY
 
-router.get('/weather', async (req, res) => {
+// Serve Weather Page
+router.get('/', (req, res) => {
+    res.render('weather/index', { error: null, weather: null });
+});
+
+// Fetch Weather Data
+router.get('/data', async (req, res) => {
     const { city } = req.query;
 
     if (!city) {
@@ -37,7 +48,6 @@ router.get('/weather', async (req, res) => {
         if (error.response?.status === 401) {
             return res.status(401).json({ error: "Invalid API key. Please check your OpenWeather API key." });
         }
-        
         if (error.response?.status === 404) {
             return res.status(404).json({ error: "City not found. Please enter a valid city name." });
         }

@@ -7,7 +7,7 @@ document.getElementById('getWeatherBtn').addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch(`/api/weather?city=${city}`);
+        const response = await fetch(`/weather/data?city=${city}`);
         const data = await response.json();
 
         if (data.error) {
@@ -28,19 +28,24 @@ document.getElementById('getWeatherBtn').addEventListener('click', async () => {
             <img src="https://openweathermap.org/img/wn/${data.weather.icon}@2x.png" alt="weather icon">
         `;
 
-        // Change background based on temperature
-        const temp = data.weather.temperature;
-        document.body.style.backgroundImage = temp < 0 ? 'url(cold-weather.jpg)' : 'url("hot-weather.jpeg")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-
-        // Update map location
-        const { lat, lon } = data.weather.coordinates;
-        map.setCenter({ lat, lng: lon });
-        new google.maps.Marker({ position: { lat, lng: lon }, map, title: city });
+        // Initialize map
+        initMap(data.weather.coordinates.lat, data.weather.coordinates.lon);
 
     } catch (error) {
         document.getElementById('weatherResult').innerHTML = `<p style="color: red;">Error fetching data. Please try again later.</p>`;
         console.error('Error:', error);
     }
 });
+
+// Initialize Google Map
+function initMap(lat = 48.8566, lon = 2.3522) {
+    const location = { lat, lng: lon };
+    const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: location
+    });
+    new google.maps.Marker({
+        position: location,
+        map: map
+    });
+}

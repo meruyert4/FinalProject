@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="/weather/public/style.css" />
+    <link rel="icon" type="image/png" href="/weather/public/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKYZvWITmGtd2x-tVsabz5UKJzFbJV5gQ&callback=initMap" async defer></script>
+    
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body style="background-image: url('/weather/public/default.jpg'); background-size: cover; height:700px;">
+    <div class="container">
+        <h1>Weather API App</h1>
+        <input type="text" id="cityInput" placeholder="Enter city" />
+        <button id="getWeatherBtn">Show Weather</button>
+        <div id="weatherResult"></div>
+        <div id="map"></div>
+    </div>
+    <script src="/weather/public/script.js"></script>
+</body>
+</html>

@@ -5,6 +5,13 @@ import User from './models/user.js';
 
 const router = express.Router();
 
+const isAuthenticated = (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    next();
+};
+
 // Serve Login Page
 router.get('/', (req, res) => {
     res.render('home', { error: null });
@@ -46,7 +53,7 @@ router.post('/login', async (req, res) => {
         if (!isMatch) return res.render('home', { error: 'Invalid credentials!' });
 
         req.session.user = user;
-        res.redirect('/login/dashboard');
+        res.redirect('/');
     } catch (err) {
         console.error(err);
         res.render('home', { error: 'Error logging in!' });
@@ -60,7 +67,7 @@ router.get('/dashboard', (req, res) => {
 
 // Logout
 router.post('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/login'));
+    req.session.destroy(() => res.redirect('/'));
 });
 
 export default router;
